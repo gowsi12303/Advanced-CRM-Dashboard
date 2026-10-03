@@ -87,7 +87,7 @@ export function BulkActionsBar({ selected, onClear }: BulkActionsBarProps) {
     <div
       role="region"
       aria-label="Bulk actions"
-      className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2"
+      className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2"
     >
       <div className="mr-auto flex items-center gap-1">
         <p className="text-sm font-medium" aria-live="polite">

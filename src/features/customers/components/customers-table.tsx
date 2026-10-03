@@ -23,6 +23,7 @@ import {
   CustomerRowActions,
   type CustomerRowAction,
 } from "./customer-row-actions";
+import { CustomerAvatar } from "./customer-avatar";
 import { CustomerStatusBadge } from "./customer-status-badge";
 
 // Columns drop out as the viewport narrows; the name cell then shows the
@@ -72,7 +73,7 @@ function SortableHead({
         type="button"
         onClick={() => onSort(field)}
         className={cn(
-          "-ml-2 inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-sm font-medium outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50",
+          "-ml-2 inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs font-medium tracking-wide uppercase outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50",
           isActive ? "text-foreground" : "text-muted-foreground",
         )}
       >
@@ -93,8 +94,13 @@ function SkeletonRows({ count }: { count: number }) {
         <Skeleton className="size-4" />
       </TableCell>
       <TableCell>
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="mt-1.5 h-3 w-40 @5xl:hidden" />
+        <div className="flex items-center gap-3">
+          <Skeleton className="hidden size-8 rounded-full @md:block" />
+          <div>
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="mt-1.5 h-3 w-40 @5xl:hidden" />
+          </div>
+        </div>
       </TableCell>
       <TableCell className={COLUMN_VISIBILITY.email}>
         <Skeleton className="h-4 w-48" />
@@ -157,9 +163,9 @@ export function CustomersTable({
   const allSelected = selectedCount > 0 && selectedCount === customers?.length;
 
   return (
-    <div className="overflow-hidden rounded-lg border bg-card">
+    <div className="overflow-hidden rounded-xl border bg-card shadow-xs">
       <Table aria-label="Customers" aria-busy={isLoading || isStale}>
-        <TableHeader className="bg-muted/40">
+        <TableHeader className="bg-muted/50">
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-8 pl-4">
               <Checkbox
@@ -179,7 +185,10 @@ export function CustomersTable({
               {...sort}
             />
             <TableHead
-              className={cn("text-muted-foreground", COLUMN_VISIBILITY.phone)}
+              className={cn(
+                "text-xs font-medium tracking-wide text-muted-foreground uppercase",
+                COLUMN_VISIBILITY.phone,
+              )}
             >
               Phone
             </TableHead>
@@ -233,8 +242,11 @@ export function CustomersTable({
                   />
                 </TableCell>
                 <TableCell>
-                  {/* Table cells don't shrink to truncate; an explicit cap does. */}
-                  <div className="max-w-[8.5rem] @md:max-w-[11rem] @4xl:max-w-[16rem]">
+                  <div className="flex items-center gap-3">
+                    {/* Dropped on the narrowest screens, where the name needs the room. */}
+                    <CustomerAvatar name={customer.name} className="hidden @md:inline-flex" />
+                    {/* Table cells don't shrink to truncate; an explicit cap does. */}
+                    <div className="max-w-[8.5rem] min-w-0 @md:max-w-[11rem] @4xl:max-w-[16rem]">
                     <button
                       type="button"
                       onClick={() => onAction("view", customer)}
@@ -247,6 +259,7 @@ export function CustomersTable({
                     </div>
                     <div className="truncate text-xs text-muted-foreground @2xl:hidden">
                       {customer.company}
+                    </div>
                     </div>
                   </div>
                 </TableCell>

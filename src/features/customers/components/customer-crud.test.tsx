@@ -692,7 +692,7 @@ describe("customer CRUD, details, contact and notes", () => {
         "Newer note",
         "Older note",
       ]);
-      expect(drawer.getByRole("heading", { name: "Notes (2)" })).toBeInTheDocument();
+      expect(drawer.getByRole("heading", { name: "Notes & interactions (2)" })).toBeInTheDocument();
     });
 
     it("shows an empty state", async () => {
@@ -726,7 +726,7 @@ describe("customer CRUD, details, contact and notes", () => {
       expect(await drawer.findByText("Prefers email over phone", { selector: "p" })).toBeInTheDocument();
       expect(await screen.findByText("Note added")).toBeInTheDocument();
       expect(input).toHaveValue("");
-      expect(drawer.getByRole("heading", { name: "Notes (1)" })).toBeInTheDocument();
+      expect(drawer.getByRole("heading", { name: "Notes & interactions (1)" })).toBeInTheDocument();
       // The notes query was invalidated and refetched.
       expect(requestCount(`GET /api/customers/${first.id}/notes`)).toBe(2);
       expect((await api.repository.listNotes(first.id))[0].body).toBe("Prefers email over phone");

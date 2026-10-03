@@ -29,7 +29,11 @@ import { findNavItem, NAV_ITEMS } from "./nav-items";
 function NavLinks({ query }: { query: string }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  const activeHref = findNavItem(pathname)?.href;
+  const active = findNavItem(pathname);
+  const activeHref = active?.href;
+  // The query only means something to the list views, and only when coming
+  // from one of them.
+  const sharedQuery = active?.sharesListQuery ? query : "";
 
   return (
     <SidebarMenu>
@@ -39,10 +43,15 @@ function NavLinks({ query }: { query: string }) {
             asChild
             isActive={item.href === activeHref}
             tooltip={item.title}
+            className="h-9 text-sidebar-foreground/85 data-[active=true]:bg-sidebar-primary/15 data-[active=true]:text-sidebar-accent-foreground data-[active=true]:[&>svg]:text-sidebar-ring"
           >
             {/* Close the mobile drawer after navigating. */}
             <Link
-              href={query ? `${item.href}?${query}` : item.href}
+              href={
+                item.sharesListQuery && sharedQuery
+                  ? `${item.href}?${sharedQuery}`
+                  : item.href
+              }
               aria-current={item.href === activeHref ? "page" : undefined}
               onClick={() => setOpenMobile(false)}
             >
@@ -69,8 +78,8 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/customers" onClick={() => setOpenMobile(false)}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <Link href="/dashboard" onClick={() => setOpenMobile(false)}>
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm shadow-sidebar-primary/40">
                   <RadioTowerIcon className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">

@@ -44,7 +44,7 @@ export function PipelineCardBody({
   return (
     <div
       className={cn(
-        "rounded-lg border bg-card p-3 text-card-foreground shadow-xs",
+        "rounded-lg border bg-card p-3 text-card-foreground shadow-xs transition-colors hover:border-ring/50",
         className,
       )}
     >

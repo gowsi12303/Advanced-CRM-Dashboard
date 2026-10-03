@@ -62,7 +62,7 @@ function FiltersPanel({
         if (isDirty && isValid) applyAndClose(draft);
       }}
     >
-      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 pb-4">
+      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-4">
         <section className="space-y-2.5" aria-labelledby="filter-templates-heading">
           <h3 id="filter-templates-heading" className="text-sm font-medium">
             Templates
@@ -73,7 +73,7 @@ function FiltersPanel({
                 <button
                   type="button"
                   onClick={() => applyAndClose(template.build(new Date()))}
-                  className="w-full rounded-md border px-3 py-2 text-left outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className="w-full rounded-lg border bg-card px-3 py-2 text-left outline-none transition-colors hover:border-ring/60 hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 >
                   <span className="block text-sm font-medium">{template.name}</span>
                   <span className="block text-xs text-muted-foreground">
@@ -97,7 +97,7 @@ function FiltersPanel({
         <CustomerFilterForm draft={draft} onChange={setDraft} />
       </div>
 
-      <SheetFooter className="border-t">
+      <SheetFooter className="border-t bg-card/50">
         <p className="text-xs text-muted-foreground" aria-live="polite">
           {!isValid
             ? "Fix the date range to apply."
@@ -150,7 +150,7 @@ export function CustomerFiltersSheet({
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full gap-0 sm:max-w-md">
-        <SheetHeader>
+        <SheetHeader className="border-b">
           <SheetTitle>Filters</SheetTitle>
           <SheetDescription>
             Narrow the customer list. Changes take effect when you apply them.

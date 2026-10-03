@@ -92,7 +92,7 @@ export function SavedFiltersSection({ onApply }: SavedFiltersSectionProps) {
           return (
             <li
               key={filter.id}
-              className="flex items-center gap-1 rounded-md border pr-1"
+              className="flex items-center gap-1 rounded-lg border bg-card pr-1"
             >
               <button
                 type="button"

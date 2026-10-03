@@ -4,9 +4,10 @@ import { ThemeProvider } from "next-themes";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { setMockSearch } from "@/test/navigation-mock";
+import { getMockPathname, getMockSearch, setMockSearch } from "@/test/navigation-mock";
 
 import { AppSidebar } from "./app-sidebar";
+import { SiteHeader } from "./site-header";
 import { ThemeToggle } from "./theme-toggle";
 
 vi.mock("next/navigation", () => import("@/test/navigation-mock"));
@@ -22,10 +23,17 @@ describe("sidebar navigation", () => {
 
   const link = (name: string) => screen.getByRole("link", { name });
 
-  it("links to both views and marks the current one", () => {
+  it("links to every view and marks the current one", () => {
     setMockSearch("");
     renderSidebar();
 
+    expect(screen.getAllByRole("link").map((item) => item.textContent)).toEqual([
+      "Relay CRMCustomer workspace",
+      "Dashboard",
+      "Customers",
+      "Pipeline",
+    ]);
+    expect(link("Dashboard")).toHaveAttribute("href", "/dashboard");
     expect(link("Customers")).toHaveAttribute("href", "/customers");
     expect(link("Pipeline")).toHaveAttribute("href", "/pipeline");
     // The navigation mock reports "/customers" as the current path.
@@ -40,6 +48,17 @@ describe("sidebar navigation", () => {
 
     expect(link("Pipeline")).toHaveAttribute("href", `/pipeline?${query}`);
     expect(link("Customers")).toHaveAttribute("href", `/customers?${query}`);
+    // The dashboard has no list, so nothing is carried to it.
+    expect(link("Dashboard")).toHaveAttribute("href", "/dashboard");
+  });
+
+  it("does not carry a query from a page that has no list", () => {
+    setMockSearch("something=else", "/dashboard");
+    renderSidebar();
+
+    expect(link("Dashboard")).toHaveAttribute("aria-current", "page");
+    expect(link("Customers")).toHaveAttribute("href", "/customers");
+    expect(link("Pipeline")).toHaveAttribute("href", "/pipeline");
   });
 
   it("follows the query string as it changes", async () => {
@@ -54,6 +73,65 @@ describe("sidebar navigation", () => {
 
     setMockSearch("");
     await waitFor(() => expect(link("Pipeline")).toHaveAttribute("href", "/pipeline"));
+  });
+});
+
+describe("site header", () => {
+  function renderHeader() {
+    return render(
+      <ThemeProvider attribute="class" defaultTheme="dark">
+        <SidebarProvider>
+          <SiteHeader />
+        </SidebarProvider>
+      </ThemeProvider>,
+    );
+  }
+
+  it("shows the page title and, on the dashboard, a customer search", async () => {
+    const user = userEvent.setup();
+    setMockSearch("", "/dashboard");
+    renderHeader();
+
+    expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
+    const search = screen.getByRole("searchbox", { name: "Search customers" });
+
+    await user.type(search, "  quartz & co {Enter}");
+    expect(getMockPathname()).toBe("/customers");
+    expect(getMockSearch()).toBe("q=quartz%20%26%20co");
+  });
+
+  it("focuses the header search with /", async () => {
+    const user = userEvent.setup();
+    setMockSearch("", "/dashboard");
+    renderHeader();
+    const search = screen.getByRole("searchbox", { name: "Search customers" });
+
+    await user.keyboard("/");
+    expect(search).toHaveFocus();
+    expect(search).toHaveValue("");
+  });
+
+  it("opens the customer list when submitted empty", async () => {
+    const user = userEvent.setup();
+    setMockSearch("", "/dashboard");
+    renderHeader();
+
+    await user.type(screen.getByRole("searchbox", { name: "Search customers" }), "{Enter}");
+    expect(getMockPathname()).toBe("/customers");
+    expect(getMockSearch()).toBe("");
+  });
+
+  it("leaves search to the page on the list views", () => {
+    setMockSearch("", "/customers");
+    const { unmount } = renderHeader();
+    expect(screen.getByRole("heading", { name: "Customers" })).toBeInTheDocument();
+    expect(screen.queryByRole("searchbox")).toBeNull();
+    unmount();
+
+    setMockSearch("", "/pipeline");
+    renderHeader();
+    expect(screen.getByRole("heading", { name: "Pipeline" })).toBeInTheDocument();
+    expect(screen.queryByRole("searchbox")).toBeNull();
   });
 });
 

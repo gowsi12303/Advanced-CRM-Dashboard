@@ -13,7 +13,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
+      // Dark is the primary look; the toggle still offers Light and System.
+      defaultTheme="dark"
       enableSystem
       disableTransitionOnChange
     >

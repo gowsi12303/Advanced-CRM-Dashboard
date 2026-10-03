@@ -1,10 +1,16 @@
 # Relay CRM
 
-A customer relationship dashboard built with Next.js, TypeScript and TanStack Query. It has a filterable customer table, a drag-and-drop pipeline board, full customer record management, and a mock REST API that the UI talks to over real HTTP.
+A customer relationship dashboard built with Next.js, TypeScript and TanStack Query. It has an overview dashboard, a filterable customer table, a drag-and-drop pipeline board, full customer record management, and a mock REST API that the UI talks to over real HTTP.
 
 "Relay CRM" is a placeholder product name.
 
 ## Features
+
+**Dashboard**
+- Key figures calculated from the customer data: total customers, active leads, contacted this week, and customers needing follow-up
+- A breakdown of customers by status and the five most recently added customers
+- Every figure links to the Customers page with the matching filter applied
+- A header search that opens the Customers page with the term applied
 
 **Customers table**
 - Search across name, email, phone and company, debounced by 300 ms
@@ -20,7 +26,7 @@ A customer relationship dashboard built with Next.js, TypeScript and TanStack Qu
 - Applied filters shown as removable chips
 
 **Customer records**
-- Details drawer with contact details, status, dates and notes
+- Details drawer organised into contact information, company and status, timeline, and notes
 - Add and edit with inline validation; delete with confirmation
 - Log a contact (method, date and time, optional note), which updates the last-contact details
 - Notes: add, and delete with confirmation
@@ -38,8 +44,8 @@ A customer relationship dashboard built with Next.js, TypeScript and TanStack Qu
 **General**
 - State in the URL: search, filters, sort, page, page size and the open customer drawer. Links are shareable, and reload and back/forward work
 - Search and filters carry over when switching between the table and the board
-- Light, dark and system themes
-- Keyboard shortcuts: `/` focuses search, `N` opens Add customer
+- A dark theme by default, with light and system themes available from the header
+- Keyboard shortcuts: `/` focuses search on every page; `N` opens Add customer on the Customers and Pipeline pages
 - Responsive from phone to wide desktop
 - Loading, empty and error states with Retry throughout; toast notifications for every action
 
@@ -77,7 +83,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. The root path redirects to `/customers`.
+Open http://localhost:3000. The root path redirects to `/dashboard`.
 
 ### Scripts
 
@@ -97,9 +103,10 @@ Run `npm run typecheck` (or start the dev server) once after cloning. Next.js ge
 
 | Route | Purpose |
 |---|---|
+| `/dashboard` | Overview: key figures, status breakdown, recent customers |
 | `/customers` | Customer table |
 | `/pipeline` | Pipeline board |
-| `/` | Redirects to `/customers` |
+| `/` | Redirects to `/dashboard` |
 
 ### API
 
@@ -123,19 +130,19 @@ Errors share one JSON shape: `{ "error": { "code", "message", "fieldErrors?" } }
 ```
 src/
   app/
-    (dashboard)/          Layout shell, /customers and /pipeline pages
+    (dashboard)/          Layout shell, /dashboard, /customers and /pipeline pages
     api/                  Route handlers (the mock backend's HTTP surface)
     providers.tsx         Theme, TanStack Query and toast providers
   components/
     ui/                   shadcn/ui components
-    layout/               Sidebar, header, theme toggle
+    layout/               Sidebar, header, header search, theme toggle
     shared/               Generic pieces: search input, pagination, confirm dialog, states
   features/customers/
     types.ts              Domain types and constants
     api/                  Typed API client (the only place that knows URLs)
     hooks/                Query keys, query and mutation hooks, URL state
     lib/                  Pure logic: schemas, URL serialisation, filters, pipeline, CSV
-    components/           Table, filters, CRUD dialogs, pipeline board
+    components/           Dashboard, table, filters, CRUD dialogs, pipeline board
   server/                 Repository interface, in-memory implementation, query engine, seed data
   hooks/                  Hooks used by shadcn/ui components
   lib/                    Cross-cutting helpers: fetch wrapper, formatting, hotkeys, CSV
@@ -172,13 +179,15 @@ npm test
 The suite uses Vitest with Testing Library in jsdom.
 
 - **Unit tests** cover the pure logic: the search/filter/sort/paginate engine, URL serialisation, filter helpers and templates, pipeline ordering, and CSV escaping.
-- **Component tests** render whole views (the customers page, the pipeline) and drive them as a user would. Their `fetch` is routed to the app's real route handlers, backed by a fresh in-memory store per test, so they exercise the real validation, query logic and persistence rather than a hand-written fake.
+- **Component tests** render whole views (the dashboard, the customers page, the pipeline) and drive them as a user would. Their `fetch` is routed to the app's real route handlers, backed by a fresh in-memory store per test, so they exercise the real validation, query logic and persistence rather than a hand-written fake.
 - **Drag and drop** cannot be simulated in jsdom, which has no layout. The pipeline tests fire the same drag events dnd-kit would and run everything from the board's handlers onwards for real.
 
 There is no end-to-end browser suite in the repository. Browser behaviour (real pointer and keyboard drags, downloads, responsive layouts, dark mode) was verified during development with scripted headless-browser runs that are not included here.
 
 ## Implementation decisions
 
+- **Dashboard figures are list counts.** Each number is the `total` of a one-row list request with a filter, so the dashboard needs no endpoint of its own, stays consistent with the table, and refreshes whenever customer data changes.
+- **Theme tokens carry the design.** Colours are defined once as CSS variables for the dark and light themes; components use the tokens rather than fixed colours, apart from the status colours.
 - **Server-side list operations.** Search, filtering, sorting and pagination happen in the API, as they would against a real database. The list query key is the full parameter object, so each view is cached separately.
 - **URL as the source of truth for list state.** Search, filters, sort and paging are read from and written to the query string. The parameter names are the same for the page URL and the API, and one module serialises and parses both. Default values are left out of the URL.
 - **Draft and applied filters.** The filter panel edits a local draft; only Apply writes to the URL, which triggers one request.
@@ -193,7 +202,8 @@ There is no end-to-end browser suite in the repository. Browser behaviour (real 
 ## Known limitations
 
 - Data is not persisted; it resets on server restart, and on serverless hosting it may not be shared between requests.
-- No authentication, users or permissions.
+- No authentication, users or permissions, so there is no profile or notification area in the header.
+- The dashboard has figures and lists only; there are no charts.
 - The pipeline board loads up to 500 matching customers in one request and shows a notice if there are more.
 - On the board with filters applied, a card dropped last among the visible cards goes to the end of the full column, after any hidden cards.
 - "Select all" selects the current page, not every matching customer.

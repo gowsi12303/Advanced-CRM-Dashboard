@@ -42,9 +42,9 @@ export function PipelineColumn({
       className={cn(
         // Phones show roughly one column at a time and scroll sideways; wide
         // containers share the width between all five.
-        "flex w-[82vw] max-w-72 shrink-0 flex-col rounded-xl border bg-muted/40 transition-colors sm:w-64",
+        "flex w-[82vw] max-w-72 shrink-0 flex-col rounded-xl border bg-muted/30 transition-colors sm:w-64",
         "@5xl:w-auto @5xl:max-w-none @5xl:min-w-0 @5xl:flex-1",
-        isDropTarget && "border-primary/50 bg-primary/5",
+        isDropTarget && "border-primary/50 bg-primary/10",
       )}
     >
       <header className="flex items-center gap-2 px-3 pt-3 pb-2">

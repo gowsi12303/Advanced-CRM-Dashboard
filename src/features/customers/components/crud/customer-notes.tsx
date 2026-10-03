@@ -104,8 +104,8 @@ export function CustomerNotes({ customerId }: { customerId: string }) {
 
   return (
     <section className="space-y-3" aria-labelledby="customer-notes-heading">
-      <h3 id="customer-notes-heading" className="text-sm font-medium">
-        Notes{" "}
+      <h3 id="customer-notes-heading" className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+        Notes &amp; interactions{" "}
         {notes.data && notes.data.length > 0 && (
           <span className="font-normal text-muted-foreground">
             ({notes.data.length})
@@ -143,7 +143,7 @@ export function CustomerNotes({ customerId }: { customerId: string }) {
       ) : (
         <ol className="space-y-2" aria-label="Notes">
           {notes.data.map((note) => (
-            <li key={note.id} className="rounded-md border p-3">
+            <li key={note.id} className="rounded-lg border bg-muted/30 p-3">
               <div className="flex items-start justify-between gap-2">
                 <time
                   dateTime={note.createdAt}
